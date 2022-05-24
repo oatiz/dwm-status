@@ -1,5 +1,5 @@
 debug: false
-order: []
+order: [ backlight ]
 separator: " / "
 
 audio:
@@ -10,6 +10,7 @@ audio:
 
 backlight:
   device: intel_backlight
+  fallback: "*"
   template: L {BL}%
   icons: []
 
