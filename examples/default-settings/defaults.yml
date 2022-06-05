@@ -4,6 +4,7 @@ separator: " / "
 
 audio:
   control: Master
+  device: pulse
   mute: MUTE
   template: S {VOL}%
   icons: []

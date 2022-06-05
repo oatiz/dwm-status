@@ -52,7 +52,7 @@ mod tests {
     #[cfg(feature = "mocking")]
     #[test]
     fn render_with_update() {
-        let mut object = Data::new("format".to_owned());
+        let mut object = Data::new("format".to_owned(), vec![]);
 
         date_time::DateTime::format.mock_safe(|_, format| {
             assert_that!(format, is(equal_to("format")));

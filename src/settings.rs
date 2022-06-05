@@ -37,22 +37,11 @@ impl Status2dEntry {
 }
 
 pub(crate) fn generate_status2d_data(entries: &[Status2dEntry]) -> Option<String> {
-    if entries.is_empty() {
-        return None;
-    }
-
-    let res = entries
-        .iter()
-        .map(|entry| entry.generate())
-        .filter_map(|s| s)
-        .collect::<Vec<String>>()
-        .join("");
-
-    if res.is_empty() {
-        return None;
-    }
-
-    Some(res)
+    Some(entries).filter(|e| !e.is_empty()).map(|e| {
+        e.iter()
+            .filter_map(crate::settings::Status2dEntry::generate)
+            .collect::<String>()
+    })
 }
 
 impl ConfigType for General {

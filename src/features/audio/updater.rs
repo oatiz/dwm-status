@@ -26,16 +26,20 @@ impl feature::Updatable for Updater {
     }
 
     fn update(&mut self) -> Result<()> {
+        let mut args = if self.settings.device.is_none() {
+            vec![]
+        } else {
+            vec!["-D", self.settings.device.as_ref().unwrap()]
+        };
+        args.extend_from_slice(&["get", &self.settings.control]);
         // originally taken from https://github.com/greshake/i3status-rust/blob/master/src/blocks/sound.rs
-        let output = process::Command::new("amixer", &["get", &self.settings.control])
-            .output()
-            .wrap_error(
-                FEATURE_NAME,
-                format!(
-                    "amixer info for control '{}' could not be fetched",
-                    &self.settings.control,
-                ),
-            )?;
+        let output = process::Command::new("amixer", &args).output().wrap_error(
+            FEATURE_NAME,
+            format!(
+                "amixer info for control '{}' could not be fetched",
+                &self.settings.control,
+            ),
+        )?;
 
         let last_line = &output
             .lines()
