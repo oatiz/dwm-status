@@ -19,7 +19,7 @@ impl BacklightDevice {
     pub(super) fn init(settings: &ConfigEntry) -> Result<Self> {
         let mut device = Self {
             max: 0,
-            path: Self::backlight_dir(settings),
+            path: Self::backlight_dir(settings)?,
         };
 
         device.max = device.get_brightness("max")?;
@@ -27,15 +27,11 @@ impl BacklightDevice {
         Ok(device)
     }
 
-    pub(super) fn backlight_dir(settings: &ConfigEntry) -> String {
+    pub(super) fn backlight_dir(settings: &ConfigEntry) -> Result<String> {
         let default_path = format!("{}/{}", BACKLIGHT_SYS_PATH, settings.device);
 
-        if Path::new(&default_path).exists() {
-            return default_path;
-        }
-
-        if settings.fallback.is_none() {
-            return default_path;
+        if Path::new(&default_path).exists() || settings.fallback.is_none() {
+            return Ok(default_path);
         }
 
         let pattern = format!(
@@ -43,11 +39,15 @@ impl BacklightDevice {
             BACKLIGHT_SYS_PATH,
             settings.fallback.as_ref().unwrap()
         );
-        if let Some(Ok(path)) = glob(&pattern).expect("Failed to read glob pattern").next() {
-            return path.display().to_string();
+
+        if let Some(Ok(path)) = glob(&pattern)
+            .wrap_error(FEATURE_NAME, "Failed to read glob pattern")?
+            .next()
+        {
+            return Ok(path.display().to_string());
         }
 
-        default_path
+        Ok(default_path)
     }
 
     pub(super) fn brightness_file(&self) -> String {
